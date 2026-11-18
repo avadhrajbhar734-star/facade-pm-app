@@ -1,6 +1,6 @@
 {
  "app": "Facade PM",
- "version": 2,
+ "version": 3,
  "last_updated": "2026-11-18",
  "categories": [
   {
@@ -2198,6 +2198,76 @@
      "added_on": "2026-11-01"
     }
    ]
+  },
+  {
+   "id": "multisite",
+   "name": "10+ Sites Handling Guide",
+   "icon": "🏗️",
+   "items": [
+    {
+     "title": "1) Master sheet - har site ki ek row",
+     "detail": "Ek hi master sheet (is app ka Sites tab / Excel export) me har site ki ek row: contract value, billed, received, pending, progress %, open hold-ups, risk, next action. Har Monday update, isi se sab report bante hain.",
+     "frequency": "Weekly",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-001"
+    },
+    {
+     "title": "2) Priority Red / Amber / Green",
+     "detail": "Red = handover ke paas, billing atki hui, ya delay/penalty risk - in par zyada time aur visit. Amber = issue hai par control me. Green = weekly check kaafi. Har Monday status dubara set karo.",
+     "frequency": "Weekly",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-002"
+    },
+    {
+     "title": "3) Fixed rhythm - daily / weekly / monthly",
+     "detail": "Roz subah 30 min sab sites ka phone/WhatsApp update. Hafte me 3-4 site visit, car route ke hisab se (paas wali sites ek din). Monday ko sab sites ka review. Month-end par sab sites ki billing ek saath close.",
+     "frequency": "Daily",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-003"
+    },
+    {
+     "title": "4) Team delegation - kaun kya karega",
+     "detail": "Data-entry: roz ka data, bill tracking, material reconciliation. CAD: measurement, shop drawings, variation drawings, area statement. Har site engineer/supervisor shaam ko fixed format me update bheje: aaj output, manpower, material aaya, issue, kal ka plan.",
+     "frequency": "Daily",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-004"
+    },
+    {
+     "title": "5) Written records - sab kuch likhit",
+     "detail": "Client ka har decision, har delay, har extra kaam - mail ya letter se confirm karo (Letters tab use karo). Har site ka hindrance register: start date, end date, reason, area, client sign. Yahi EOT aur penalty defence ka saboot hai.",
+     "frequency": "Daily",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-005"
+    },
+    {
+     "title": "6) Har site ka monthly cash flow",
+     "detail": "Har mahine site wise: client se kitna aaya vs contractor + material par kitna gaya. Jis site par kharcha > receipt ho, wo loss-making site hai - early pakdo aur boss ko reason ke saath batao (billing late, extra work unbilled, wastage).",
+     "frequency": "Monthly",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-006"
+    },
+    {
+     "title": "7) One-page weekly boss report",
+     "detail": "Har hafte 1 page: har site ka status (R/A/G), billing (billed/received/pending), main issues, aur kaha boss ki help chahiye. Home tab ka 'Weekly summary (A4)' button yahi page banata hai.",
+     "frequency": "Weekly",
+     "priority": "High",
+     "tags": [],
+     "added_on": "2026-11-18",
+     "id": "multisite-007"
+    }
+   ]
   }
  ],
  "skills": {
@@ -2488,5 +2558,63 @@
     ]
    }
   ]
- }
+ },
+ "templates": [
+  {
+   "id": "t_hindrance",
+   "name": "Hindrance letter",
+   "lang": "English",
+   "subject": "{{Project}} - Hindrance to facade work: {{Hindrance}}",
+   "body": "Date: {{Date}}\n\nTo,\n{{Client}}\n\nSub: Hindrance to facade work at {{Project}} - {{Hindrance}}\nRef: {{Reference}}\n\nDear Sir,\n\nWe wish to bring to your notice that our facade work at {{Area / elevation}} has been hindered since {{Hindrance start date}} due to {{Hindrance}}, which is not in our scope.\n\nDue to this, {{Teams affected}} team(s) are standing idle / working at reduced output, and approx. {{Qty affected}} of work is held up.\n\nWe request you to kindly resolve the matter at the earliest and confirm in writing. The period of hindrance will be considered for extension of time, and we reserve our right to claim the associated costs.\n\nThis is without prejudice to our rights under the contract.\n\nThanking you,\n{{Your name}}\n{{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_eot",
+   "name": "EOT claim",
+   "lang": "English",
+   "subject": "{{Project}} - Request for Extension of Time",
+   "body": "Date: {{Date}}\n\nTo,\n{{Client}}\n\nSub: Request for Extension of Time (EOT) - {{Project}}\nRef: Work order no. {{Work order no}}\n\nDear Sir,\n\nAs per the contract, the scheduled completion date was {{Original completion date}}. The work has been delayed due to reasons beyond our control, mainly:\n\n1. {{Delay reason 1}}\n2. {{Delay reason 2}}\n3. {{Delay reason 3}}\n\nThese events were informed to you vide our letters/emails dated {{Letter dates}}. Considering the longest non-overlapping delay path, the delay works out to {{EOT days}} days.\n\nWe therefore request you to grant an Extension of Time of {{EOT days}} days, with the revised completion date as {{Revised completion date}}, without levy of any penalty / liquidated damages.\n\nDetailed delay analysis and supporting documents are enclosed.\n\nThis is without prejudice to our rights under the contract.\n\nThanking you,\n{{Your name}}\n{{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_variation",
+   "name": "Variation / extra work request",
+   "lang": "English",
+   "subject": "{{Project}} - Extra work / variation: {{Extra work}}",
+   "body": "Date: {{Date}}\n\nTo,\n{{Client}}\n\nSub: Approval for extra work / variation - {{Extra work}}\nRef: {{Instruction reference}}\n\nDear Sir,\n\nAs per your instruction dated {{Instruction date}}, we are required to carry out the following work, which is not covered in our BOQ / scope:\n\nDescription: {{Extra work}}\nQuantity: {{Quantity}}\nRate: {{Rate}}\nAmount: {{Amount}}\nTime impact: {{Time impact days}} days\n\nRate analysis and drawings are enclosed. Kindly approve the above and issue an amendment to the work order so that we can proceed and bill accordingly.\n\nWork on this item will be taken up after your written approval.\n\nThanking you,\n{{Your name}}\n{{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_payment",
+   "name": "Payment reminder",
+   "lang": "English",
+   "subject": "{{Project}} - Payment pending against RA bill {{Bill no}}",
+   "body": "Date: {{Date}}\n\nTo,\n{{Client}}\n\nSub: Payment pending - RA bill no. {{Bill no}}\n\nDear Sir,\n\nOur RA bill no. {{Bill no}} dated {{Bill date}} for Rs. {{Bill amount}} was submitted and certified for Rs. {{Certified amount}}. As per the contract payment terms of {{Payment days}} days, the payment was due on {{Due date}}.\n\nThe amount is still pending, which is affecting material procurement and labour payments at site.\n\nWe request you to kindly release the payment at the earliest.\n\nThanking you,\n{{Your name}}\n{{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_decision",
+   "name": "Decision pending reminder",
+   "lang": "English",
+   "subject": "{{Project}} - Decision required by {{Required by date}}: {{Decision}}",
+   "body": "Date: {{Date}}\n\nTo,\n{{Client}} / {{Architect}}\n\nSub: Decision pending - {{Decision}}\n\nDear Sir,\n\nWe had requested your decision on {{Decision}} vide our email/letter dated {{Request date}}. The same is still awaited ({{Days pending}} days).\n\nKindly note that work at {{Area / elevation}} is on hold due to this, and approx. {{Value held up}} of billing is held up.\n\nWe request your decision by {{Required by date}}. Any further delay will affect the completion schedule, for which we shall not be responsible.\n\nThanking you,\n{{Your name}}\n{{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_mom",
+   "name": "MOM format",
+   "lang": "English",
+   "subject": "{{Project}} - Minutes of Meeting dated {{Meeting date}}",
+   "body": "MINUTES OF MEETING\n\nProject: {{Project}}\nDate / time: {{Meeting date}}\nVenue: {{Venue}}\nAttendees: {{Attendees}}\n\nSr | Point | Action by | Target date\n1 | {{Point 1}} | {{Action by 1}} | {{Target 1}}\n2 | {{Point 2}} | {{Action by 2}} | {{Target 2}}\n3 | {{Point 3}} | {{Action by 3}} | {{Target 3}}\n\nPending decisions from client / architect:\n{{Pending decisions}}\n\nNext meeting: {{Next meeting date}}\n\nNote: Kindly send comments, if any, within 3 days, else these minutes shall be treated as accepted.\n\nPrepared by: {{Your name}}, {{Company}}",
+   "added_on": "2026-11-18"
+  },
+  {
+   "id": "t_hinglish_wa",
+   "name": "WhatsApp follow-up (Hinglish)",
+   "lang": "Hinglish",
+   "subject": "{{Project}} - follow-up",
+   "body": "Namaste {{Contact name}} ji,\n\n{{Project}} site par {{Decision}} ka decision {{Request date}} se pending hai. Iski wajah se {{Area / elevation}} ka kaam ruka hua hai.\n\nKripya {{Required by date}} tak confirm kar dein. Main isko email par bhi bhej raha hu record ke liye.\n\nDhanyavaad,\n{{Your name}}",
+   "added_on": "2026-11-18"
+  }
+ ]
 }

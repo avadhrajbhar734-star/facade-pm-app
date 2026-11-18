@@ -2,7 +2,7 @@ const LS=k=>JSON.parse(localStorage.getItem(k)||'null'),SV=(k,v)=>localStorage.s
 let DATA=null,done=LS('fpm_done')||{},seen=LS('fpm_seen');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=d=>d.split('-').reverse().join('/');
-function allIds(){const a=[];DATA.categories.forEach(c=>c.items.forEach(i=>a.push(i)));(DATA.skills?.groups||[]).forEach(g=>g.items.forEach(i=>a.push(i)));return a}
+function allIds(){const a=[];DATA.categories.forEach(c=>c.items.forEach(i=>a.push(i)));(DATA.skills?.groups||[]).forEach(g=>g.items.forEach(i=>a.push(i)));(DATA.templates||[]).forEach(i=>a.push(i));return a}
 function initSeen(){if(seen)return;const cut=new Date(Date.now()-14*864e5).toISOString().slice(0,10);seen={};allIds().forEach(i=>{if(i.added_on<cut)seen[i.id]=1});SV('fpm_seen',seen)}
 const isNew=i=>!seen[i.id];
 function itemHTML(i,showCat){const n=isNew(i);return `<div class="item ${done[i.id]?'done':''} ${n?'isnew':''}" id="it-${i.id}"><input type="checkbox" data-id="${i.id}" ${done[i.id]?'checked':''}><div><div class="t">${esc(i.title)}${n?'<span class="badge">NEW</span>':''}</div><div class="d">${esc(i.detail)}</div><div class="meta">${showCat?`<span class="tag">${esc(showCat)}</span>`:''}<span class="tag">${i.frequency}</span><span class="tag ${i.priority}">${i.priority}</span><span>Added ${fmt(i.added_on)}</span>${done[i.id]?`<span>✔ ${done[i.id]}</span>`:''}</div></div></div>`}
@@ -19,7 +19,8 @@ function skHTML(s,cat){const n=isNew(s);return `<div class="sk ${n?'isnew':''}">
 function renderSkills(){const S=DATA.skills;if(!S){document.getElementById('skills').innerHTML='';return}
  document.getElementById('skills').innerHTML=S.groups.map(g=>{const nn=g.items.filter(isNew).length;return `<details class="cat" open><summary><span>${g.id=='must'?'⭐':'📘'} ${esc(g.name)}${nn?`<span class="badge">${nn} NEW</span>`:''}</span><small>${g.items.length}</small></summary>${g.items.map(s=>skHTML(s)).join('')}</details>`}).join('')}
 function markSeen(){allIds().forEach(i=>seen[i.id]=1);SV('fpm_seen',seen);renderList()}
-function tab(t){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab==t));['list','new','skills'].forEach(x=>document.getElementById('tab-'+x).hidden=x!=t);scrollTo(0,0)}
+const TABS=['home','sites','list','new','tools','letters','skills','more'];
+function tab(t){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab==t));TABS.forEach(x=>{const el=document.getElementById('tab-'+x);if(el)el.hidden=x!=t});const nb=document.querySelector('nav button.on');if(nb)nb.scrollIntoView({inline:'center',block:'nearest'});if(window.PM)PM.onTab(t);scrollTo(0,0)}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t)tab(t.dataset.tab)});
 document.addEventListener('change',e=>{if(e.target.dataset.id){const id=e.target.dataset.id;if(e.target.checked)done[id]=new Date().toLocaleDateString('en-GB');else delete done[id];SV('fpm_done',done);renderList()}});
 ['q','freq','done'].forEach(id=>document.getElementById(id).addEventListener('input',renderList));
@@ -28,5 +29,7 @@ async function load(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'
  initSeen();const n=DATA.categories.reduce((a,c)=>a+c.items.length,0);
  document.getElementById('upd').textContent='Updated '+fmt(DATA.last_updated);
  document.getElementById('foot').textContent=`${DATA.categories.length} sections · ${n} points · ${DATA.skills?DATA.skills.groups.reduce((a,g)=>a+g.items.length,0):0} skills · v${DATA.version}`;renderList()}
-load().then(()=>{const h=location.hash.slice(1);if(['list','new','skills'].includes(h))tab(h)});
+load().then(()=>{if(window.PM)PM.init();const h=location.hash.slice(1);tab(TABS.includes(h)?h:'home')});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+
+window.DATA_REF=()=>DATA;window.IS_NEW=i=>isNew(i);

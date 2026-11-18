@@ -3,13 +3,24 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Facade PM</title><meta name="theme-color" content="#37474f">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="pm.css">
 </head><body>
 <header><div class="top"><b>Facade PM</b><span id="upd"></span></div>
-<nav><button data-tab="list" class="on">Checklist</button><button data-tab="new">Naya kya hai <span id="newc" class="cnt"></span></button><button data-tab="skills">PM Skills</button></nav>
+<nav>
+<button data-tab="home" data-feat="home">Home</button>
+<button data-tab="sites" data-feat="sites">Sites</button>
+<button data-tab="list">Checklist</button>
+<button data-tab="new">Naya kya hai <span id="newc" class="cnt"></span></button>
+<button data-tab="tools" data-feat="tools">Calculators</button>
+<button data-tab="letters" data-feat="letters">Letters</button>
+<button data-tab="skills">PM Skills</button>
+<button data-tab="more" data-feat="more">Export/Backup</button>
+</nav>
 </header>
 <main>
-<section id="tab-list">
+<section id="tab-home" hidden></section>
+<section id="tab-sites" hidden></section>
+<section id="tab-list" hidden>
  <div class="bar"><input id="q" type="search" placeholder="Search karo...">
  <select id="freq"><option value="">Sab frequency</option><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Per stage</option><option>One-time</option></select>
  <select id="done"><option value="">Sab</option><option value="0">Pending</option><option value="1">Done</option></select></div>
@@ -17,8 +28,14 @@
  <div id="list"></div>
 </section>
 <section id="tab-new" hidden><div id="newlist"></div></section>
+<section id="tab-tools" hidden></section>
+<section id="tab-letters" hidden></section>
 <section id="tab-skills" hidden><div id="skills"></div></section>
+<section id="tab-more" hidden></section>
 </main>
+<div id="print"></div>
+<div id="toast"></div>
 <footer id="foot"></footer>
 <script src="app.js"></script>
+<script src="pm.js"></script>
 </body></html>
