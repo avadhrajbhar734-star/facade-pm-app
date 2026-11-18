@@ -1,0 +1,25 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Roboto,Arial,sans-serif;background:#f4f5f6;color:#222;font-size:15px}
+header{position:sticky;top:0;background:#37474f;color:#fff;z-index:5}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px 12px}.top span{font-size:12px;opacity:.8}
+nav{display:flex}nav button{flex:1;background:none;border:0;color:#cfd8dc;padding:9px 4px;font-size:14px;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-bottom-color:#ffca28}
+.cnt{background:#ffca28;color:#000;border-radius:9px;padding:0 6px;font-size:12px}.cnt:empty{display:none}
+main{padding:8px;max-width:760px;margin:auto}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.bar input{flex:1 1 100%;padding:9px;border:1px solid #bbb;border-radius:6px;font-size:15px}
+.bar select{flex:1;padding:7px;border:1px solid #bbb;border-radius:6px;background:#fff}
+details.cat{background:#fff;border:1px solid #ddd;border-radius:6px;margin-bottom:8px}
+details.cat>summary{padding:11px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+details.cat>summary small{font-weight:400;color:#666}
+.item{border-top:1px solid #eee;padding:9px 11px;display:flex;gap:10px}
+.item input{width:20px;height:20px;margin-top:2px;flex:none}
+.item.done .t{text-decoration:line-through;color:#888}
+.t{font-weight:600}.d{color:#444;margin-top:3px;line-height:1.35}
+.meta{margin-top:5px;font-size:12px;color:#666;display:flex;gap:6px;flex-wrap:wrap}
+.tag{border:1px solid #ccc;border-radius:4px;padding:0 5px}.High{border-color:#e57373;color:#c62828}
+.isnew{background:#fff8c4}.badge{background:#f9a825;color:#000;font-size:11px;font-weight:700;border-radius:4px;padding:1px 5px;margin-left:6px}
+.newbox{background:#fffde7;border:1px solid #f9a825;border-radius:6px;padding:8px 10px;margin-bottom:8px}
+.newbox b{display:block;margin-bottom:4px}.newbox li{margin:3px 0}
+button.btn{background:#37474f;color:#fff;border:0;border-radius:6px;padding:8px 12px;margin-top:6px}
+.sk{border-top:1px solid #eee;padding:9px 11px}.sk .w,.sk .h{margin-top:3px;line-height:1.35}.sk .lbl{font-weight:600;color:#555}
+footer{text-align:center;font-size:12px;color:#777;padding:14px}
+.empty{color:#777;padding:10px}
