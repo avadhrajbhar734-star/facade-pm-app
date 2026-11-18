@@ -28,5 +28,5 @@ async function load(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'
  initSeen();const n=DATA.categories.reduce((a,c)=>a+c.items.length,0);
  document.getElementById('upd').textContent='Updated '+fmt(DATA.last_updated);
  document.getElementById('foot').textContent=`${DATA.categories.length} sections · ${n} points · ${DATA.skills?DATA.skills.groups.reduce((a,g)=>a+g.items.length,0):0} skills · v${DATA.version}`;renderList()}
-load();
+load().then(()=>{const h=location.hash.slice(1);if(['list','new','skills'].includes(h))tab(h)});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
