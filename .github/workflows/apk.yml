@@ -14,12 +14,30 @@ jobs:
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.7' }
+      - name: Decode release keystore
+        env: { KS_B64: '${{ secrets.ANDROID_KEYSTORE_B64 }}' }
+        run: |
+          test -n "$KS_B64" || { echo "ANDROID_KEYSTORE_B64 secret missing"; exit 1; }
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
       - name: Build
         working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: '${{ runner.temp }}/release.jks'
+          ANDROID_STORE_PASSWORD: '${{ secrets.ANDROID_STORE_PASSWORD }}'
+          ANDROID_KEY_PASSWORD: '${{ secrets.ANDROID_KEY_PASSWORD }}'
+          ANDROID_KEY_ALIAS: '${{ secrets.ANDROID_KEY_ALIAS }}'
         run: gradle assembleRelease --no-daemon
+      - name: Verify signature
+        run: |
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          $BT/apksigner verify --print-certs android/app/build/outputs/apk/release/app-release.apk | tee certs.txt
+          grep -qi "d7be78da38c3b3b77061e65370a89c5af5743aeaeaa62757319aa720b46ed6c0" certs.txt || { echo "Unexpected signing cert"; exit 1; }
+      - name: Clean keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
       - name: Publish release
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk FacadePM.apk
           gh release delete latest -y --cleanup-tag || true
-          gh release create latest FacadePM.apk -t "Facade PM APK" -n "Install karo (Unknown sources allow karna padega). Content auto-update hota hai."
+          gh release create latest FacadePM.apk -t "Facade PM APK v3.0" -n "Permanent release key se signed (SHA-256 D7:BE:78:DA...:D6:C0). Aage ke sab updates isi key se - seedha upar install honge. v1/v2 (debug key) wale phone me ek baar uninstall karke install karo."

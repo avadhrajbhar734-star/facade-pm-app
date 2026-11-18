@@ -2,8 +2,20 @@ plugins { id 'com.android.application' }
 android {
   namespace 'com.facadepm.app'
   compileSdk 34
-  defaultConfig { applicationId "com.facadepm.app"; minSdk 21; targetSdk 34; versionCode 2; versionName "2.0" }
-  buildTypes { release { minifyEnabled false; signingConfig signingConfigs.debug } }
+  defaultConfig { applicationId "com.facadepm.app"; minSdk 21; targetSdk 34; versionCode 3; versionName "3.0" }
+  signingConfigs {
+    release {
+      // Persistent release key - CI secrets se aata hai (repo me kabhi commit nahi hota)
+      def ks = System.getenv("ANDROID_KEYSTORE_PATH")
+      if (ks) {
+        storeFile file(ks)
+        storePassword System.getenv("ANDROID_STORE_PASSWORD")
+        keyAlias System.getenv("ANDROID_KEY_ALIAS")
+        keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+      }
+    }
+  }
+  buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
   compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies { implementation 'androidx.core:core:1.13.1' }

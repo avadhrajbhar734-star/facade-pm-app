@@ -1,2 +1,5 @@
 FacadePM.apk
 verify/
+*.jks
+*.keystore
+credentials.txt
