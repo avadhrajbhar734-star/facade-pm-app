@@ -19,7 +19,7 @@ function skHTML(s,cat){const n=isNew(s);return `<div class="sk ${n?'isnew':''}">
 function renderSkills(){const S=DATA.skills;if(!S){document.getElementById('skills').innerHTML='';return}
  document.getElementById('skills').innerHTML=S.groups.map(g=>{const nn=g.items.filter(isNew).length;return `<details class="cat" open><summary><span>${g.id=='must'?'⭐':'📘'} ${esc(g.name)}${nn?`<span class="badge">${nn} NEW</span>`:''}</span><small>${g.items.length}</small></summary>${g.items.map(s=>skHTML(s)).join('')}</details>`}).join('')}
 function markSeen(){allIds().forEach(i=>seen[i.id]=1);SV('fpm_seen',seen);renderList()}
-const TABS=['home','sites','list','new','tools','letters','skills','more'];
+const TABS=['home','sites','boq','list','new','tools','letters','skills','more'];
 function tab(t){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab==t));TABS.forEach(x=>{const el=document.getElementById('tab-'+x);if(el)el.hidden=x!=t});const nb=document.querySelector('nav button.on');if(nb)nb.scrollIntoView({inline:'center',block:'nearest'});if(window.PM)PM.onTab(t);scrollTo(0,0)}
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tab]');if(t)tab(t.dataset.tab)});
 document.addEventListener('change',e=>{if(e.target.dataset.id){const id=e.target.dataset.id;if(e.target.checked)done[id]=new Date().toLocaleDateString('en-GB');else delete done[id];SV('fpm_done',done);renderList()}});
@@ -29,7 +29,7 @@ async function load(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'
  initSeen();const n=DATA.categories.reduce((a,c)=>a+c.items.length,0);
  document.getElementById('upd').textContent='Updated '+fmt(DATA.last_updated);
  document.getElementById('foot').textContent=`${DATA.categories.length} sections · ${n} points · ${DATA.skills?DATA.skills.groups.reduce((a,g)=>a+g.items.length,0):0} skills · v${DATA.version}`;renderList()}
-load().then(()=>{if(window.PM)PM.init();const h=location.hash.slice(1);tab(TABS.includes(h)?h:'home')});
+load().then(async()=>{if(window.PM)await PM.init();const h=location.hash.slice(1);tab(TABS.includes(h)?h:'home')});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 
 window.DATA_REF=()=>DATA;window.IS_NEW=i=>isNew(i);

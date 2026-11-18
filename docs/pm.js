@@ -9,13 +9,23 @@ const inr=v=>'₹'+Math.round(num(v)).toLocaleString('en-IN');
 const lakh=v=>{v=num(v);return Math.abs(v)>=1e7?(v/1e7).toFixed(2)+' Cr':Math.abs(v)>=1e5?(v/1e5).toFixed(2)+' L':Math.round(v).toLocaleString('en-IN')};
 const uid=()=>Math.random().toString(36).slice(2,9);
 const AND=window.Android;
-let ST=JSON.parse(localStorage.getItem('fpm_pm')||'null')||{sites:[]};
-const save=()=>localStorage.setItem('fpm_pm',JSON.stringify(ST));
+/* IndexedDB storage (pehle localStorage tha - init me migrate hota hai) */
+let ST={sites:[]};
+const IDB={db:null,open(){return new Promise((ok,no)=>{if(!window.indexedDB)return no('noidb');const r=indexedDB.open('facadepm',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{this.db=r.result;ok()};r.onerror=()=>no(r.error)})},
+ get(k){return new Promise((ok,no)=>{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)})},
+ put(k,v){return new Promise((ok,no)=>{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}};
+function roll(){ST.sites.forEach(s=>window.BOQ&&BOQ.roll(s))}
+let saveP=Promise.resolve();
+const save=()=>{roll();const snap=JSON.parse(JSON.stringify(ST));saveP=saveP.then(()=>IDB.db?IDB.put('pm',snap):localStorage.setItem('fpm_pm',JSON.stringify(snap))).catch(e=>toast('Save error: '+e));return saveP};
+async function loadStore(){try{await IDB.open();let d=await IDB.get('pm');const old=localStorage.getItem('fpm_pm');
+ if(!d&&old){d=JSON.parse(old);await IDB.put('pm',d);localStorage.setItem('fpm_pm_migrated',old);localStorage.removeItem('fpm_pm')}
+ ST=d||{sites:[]}}catch(e){ST=JSON.parse(localStorage.getItem('fpm_pm')||'null')||{sites:[]}}
+ if(!ST.sites)ST.sites=[];if(window.BOQ&&!localStorage.getItem('fpm_demo')){BOQ.addDemo(ST);localStorage.setItem('fpm_demo','1');await save()}roll()}
 function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2500)}
 let cur=null; // open site id
 
 /* ---------- NEW feature badges ---------- */
-const FEATS={home:'Home dashboard',sites:'Site tracker',tools:'Calculators',letters:'Letters',more:'Export/Backup'};
+const FEATS={boq:'BOQ control',home:'Home dashboard',sites:'Site tracker',tools:'Calculators',letters:'Letters',more:'Export/Backup'};
 let fseen=JSON.parse(localStorage.getItem('fpm_feat')||'{}');
 function badges(){document.querySelectorAll('nav [data-feat]').forEach(b=>{let x=b.querySelector('.fbadge');if(!fseen[b.dataset.feat]){if(!x){x=document.createElement('span');x.className='fbadge';x.textContent='NEW';b.appendChild(x)}}else if(x)x.remove()})}
 
@@ -76,7 +86,8 @@ function renderSites(){const el=$('#tab-sites');const s=ST.sites.find(x=>x.id==c
  for(const k in LISTS){const L=LISTS[k],arr=s[k]||[];
   h+=`<div class="card"><h4>${L.title} <span class="small">${arr.filter(r=>!r[L.chk]).length} open</span></h4>${arr.map(r=>`<div class="li ${r[L.chk]?'ok':''}"><input type="checkbox" data-lchk="${k}" data-id="${r.id}" ${r[L.chk]?'checked':''} title="${L.chkLabel||'Done'}"><div class="tt">${L.show(r)}</div><button class="x" data-ldel="${k}" data-id="${r.id}">×</button></div>`).join('')}
   <div class="row addrow" data-list="${k}">${L.f.map(f=>f[2]=='chk'?`<label class="small"><input type="checkbox" data-f="${f[0]}"> ${f[1]}</label>`:f[2].startsWith('sel:')?`<select class="i" data-f="${f[0]}">${f[2].slice(4).split(',').map(o=>`<option>${o}</option>`).join('')}</select>`:`<input class="i" type="${f[2]}" data-f="${f[0]}" placeholder="${f[1]}" ${f[2]=='date'?`title="${f[1]}" value="${f[0]=='since'?today():''}"`:''}>`).join('')}<button class="btn" data-ladd="${k}" style="flex:0 0 auto">Add</button></div></div>`}
- el.innerHTML=h+'</div></div>'}
+ el.innerHTML=h+'</div></div>';if(s.boq&&s.boq.items&&s.boq.items.length){['cv','billed','progress'].forEach(k=>{const i=$(`#sform [data-k=${k}]`);if(i){i.readOnly=true;i.style.background='#eceff1';i.title='BOQ se auto'}});$('#sform h4').insertAdjacentHTML('beforeend','<span class="small">Contract, billed, progress BOQ se auto</span>')}
+ $('#sform').insertAdjacentHTML('beforeend',`<button class="btn" data-boqopen="${s.id}" style="margin-top:8px">📋 BOQ control kholo (${(s.boq&&s.boq.items||[]).length} items)</button>`)}
 function addSite(){const s={id:uid(),name:'Nayi site '+(ST.sites.length+1),client:'',cv:'',billed:'',received:'',progress:0,status:'Green',nextDate:'',nextAction:'',fu:[],hold:[],mat:[],rem:[]};ST.sites.push(s);save();cur=s.id;window.tab('sites');setTimeout(()=>{const i=$('#sform [data-k=name]');i&&(i.select(),i.focus())},50)}
 function listAdd(k,row){const s=ST.sites.find(x=>x.id==cur),r={id:uid()};row.querySelectorAll('[data-f]').forEach(i=>r[i.dataset.f]=i.type=='checkbox'?i.checked:i.value.trim());if(!r.t){toast('Detail likho');return}(s[k]=s[k]||[]).push(r);save();renderSites();const n=$(`.addrow[data-list=${k}] [data-f=t]`);n&&n.focus()}
 
@@ -137,7 +148,7 @@ function download(name,data,mime){if(AND&&AND.saveFile){AND.saveFile(name,typeof
  const u=URL.createObjectURL(new Blob([data],{type:mime})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast(name+' download ho gaya')}
 function backup(){const d={app:'Facade PM',type:'backup',at:new Date().toISOString(),pm:ST,done:JSON.parse(localStorage.getItem('fpm_done')||'{}'),tv:JSON.parse(localStorage.getItem('fpm_tv')||'{}')};
  download(`FacadePM_backup_${today()}.json`,JSON.stringify(d,null,1),'application/json');localStorage.setItem('fpm_lastbk',dmy(today()))}
-function restore(f){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.pm||!Array.isArray(d.pm.sites))throw 0;if(!confirm(`Backup (${d.pm.sites.length} sites, ${(d.at||'').slice(0,10)}) restore karein? Is device ka current data replace hoga.`))return;ST=d.pm;save();if(d.done)localStorage.setItem('fpm_done',JSON.stringify(d.done));if(d.tv)localStorage.setItem('fpm_tv',JSON.stringify(d.tv));toast('Restore ho gaya');setTimeout(()=>location.reload(),800)}catch(e){alert('Ye Facade PM backup file nahi lagti')}};r.readAsText(f)}
+function restore(f){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.pm||!Array.isArray(d.pm.sites))throw 0;if(!confirm(`Backup (${d.pm.sites.length} sites, ${(d.at||'').slice(0,10)}) restore karein? Is device ka current data replace hoga.`))return;if(d.done)localStorage.setItem('fpm_done',JSON.stringify(d.done));if(d.tv)localStorage.setItem('fpm_tv',JSON.stringify(d.tv));ST=d.pm;localStorage.setItem('fpm_demo','1');save().then(()=>{toast('Restore ho gaya');setTimeout(()=>location.reload(),600)})}catch(e){alert('Ye Facade PM backup file nahi lagti')}};r.readAsText(f)}
 function loadX(){return window.XLSX?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='lib/xlsx.min.js';s.onload=ok;s.onerror=()=>no();document.head.appendChild(s)})}
 function sheet(head,rows,widths){const ws=XLSX.utils.aoa_to_sheet([head,...rows]);const bd={style:'thin',color:{rgb:'808080'}},B={top:bd,bottom:bd,left:bd,right:bd};
  const rg=XLSX.utils.decode_range(ws['!ref']);for(let R=rg.s.r;R<=rg.e.r;R++)for(let C=rg.s.c;C<=rg.e.c;C++){const a=XLSX.utils.encode_cell({r:R,c:C});if(!ws[a])ws[a]={t:'s',v:''};ws[a].s={border:B,alignment:{horizontal:'center',vertical:'center',wrapText:true},font:{name:'Calibri',sz:10,bold:R==0},...(R==0?{fill:{fgColor:{rgb:'D9D9D9'}}}:{})};if(R>0&&typeof ws[a].v=='number'&&ws[a].v>999)ws[a].z='#,##0'}
@@ -150,6 +161,7 @@ async function xlsx(){try{await loadX()}catch(e){toast('Excel library load nahi 
  XLSX.utils.book_append_sheet(wb,sheet(['Sr','Site','Decision / hold-up','Pending from','Since','Clear date','Days','Status'],flat('hold',(s,r)=>[s.name,r.t,r.party||'',d(r.since),d(r.closed),r.since?days(r.since,r.closed||today()):'',r.closed?'Clear':'Pending']),[5,22,45,16,12,12,8,10]),'Hold_ups');
  XLSX.utils.book_append_sheet(wb,sheet(['Sr','Site','Item','Qty','Expected','Status'],flat('mat',(s,r)=>[s.name,r.t,r.qty||'',d(r.exp),r.recd?'Received':(r.exp&&r.exp<today()?'Overdue':'Pending')]),[5,22,40,12,12,10]),'Material_Pending');
  XLSX.utils.book_append_sheet(wb,sheet(['Sr','Site','Type','Detail','Due date','Monthly','Status'],flat('rem',(s,r)=>[s.name,r.type,r.t,d(r.due),r.monthly?'Yes':'No',r.done?'Done':(r.due<today()?'Overdue':'Pending')]),[5,22,20,40,12,9,10]),'Reminders');
+ if(window.BOQ)BOQ.exportSheets(wb,sheet);
  const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});download(`FacadePM_Sites_${today()}.xlsx`,out,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')}
 function printSummary(){const S=ST.sites,D=dueList(),H=openHolds(),tot=k=>S.reduce((a,s)=>a+num(s[k]),0);
  const wk=new Date();const st=new Date(wk-6*864e5).toISOString().slice(0,10);
@@ -164,7 +176,8 @@ function printSummary(){const S=ST.sites,D=dueList(),H=openHolds(),tot=k=>S.redu
 let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;const b=$('#instbtn');if(b)b.style.display='inline-block'});
 
 /* ---------- events ---------- */
-document.addEventListener('click',e=>{const a=e.target.closest('[data-act],[data-site],[data-ladd],[data-ldel]');if(!a)return;
+document.addEventListener('click',e=>{const bo=e.target.closest('[data-boqopen]');if(bo&&window.BOQ){BOQ.open(bo.dataset.boqopen);return}
+ const a=e.target.closest('[data-act],[data-site],[data-ladd],[data-ldel]');if(!a)return;if(a.closest('#tab-boq'))return;
  if(a.dataset.site){cur=a.dataset.site;window.tab('sites');return}
  if(a.dataset.ladd){listAdd(a.dataset.ladd,a.closest('.addrow'));return}
  if(a.dataset.ldel){if(!confirm('Delete?'))return;const s=ST.sites.find(x=>x.id==cur);s[a.dataset.ldel]=s[a.dataset.ldel].filter(r=>r.id!=a.dataset.id);save();renderSites();return}
@@ -172,7 +185,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act],[data
  if(act=='addsite')addSite();else if(act=='back'){cur=null;renderSites()}
  else if(act=='delsite'){if(confirm('Is site ka sara data delete karein?')){ST.sites=ST.sites.filter(s=>s.id!=cur);cur=null;save();renderSites()}}
  else if(act=='print')printSummary();else if(act=='xlsx')xlsx();else if(act=='backup')backup();else if(act=='notify')askNotify();
- else if(act=='clear'){if(confirm('Pakka? Pehle backup le lo.')){ST={sites:[]};save();toast('Clear ho gaya')}}
+ else if(act=='clear'){if(confirm('Pakka? Pehle backup le lo.')){ST={sites:[]};localStorage.setItem('fpm_demo','1');save();toast('Clear ho gaya')}}
  else if(act=='tcopy')copyText($('#t_subj').value+'\n\n'+$('#t_out').value);else if(act=='tshare')shareText($('#t_out').value,$('#t_subj').value);
  else if(act=='tmail')location.href='mailto:?subject='+encodeURIComponent($('#t_subj').value)+'&body='+encodeURIComponent($('#t_out').value);
  else if(act=='install'&&deferred){deferred.prompt();deferred=null}});
@@ -188,7 +201,7 @@ document.addEventListener('change',e=>{const t=e.target;
 document.addEventListener('input',e=>{if(e.target.closest('#tab-tools'))calc();if(e.target.dataset.ph!=null)fillT()});
 document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.closest('.addrow')&&e.target.tagName=='INPUT'){e.preventDefault();listAdd(e.target.closest('.addrow').dataset.list,e.target.closest('.addrow'))}});
 
-window.PM={init(){badges();notifyOnce()},onTab(t){if(FEATS[t]&&!fseen[t]){fseen[t]=1;localStorage.setItem('fpm_feat',JSON.stringify(fseen));badges()}
- if(t=='home')renderHome();else if(t=='sites')renderSites();else if(t=='tools'){if(!$('#g_in'))renderTools()}else if(t=='letters')renderLetters();else if(t=='more')renderMore()},
- _st:()=>ST};
+window.PM={async init(){await loadStore();badges();notifyOnce()},onTab(t){if(FEATS[t]&&!fseen[t]){fseen[t]=1;localStorage.setItem('fpm_feat',JSON.stringify(fseen));badges()}
+ if(t=='home')renderHome();else if(t=='sites')renderSites();else if(t=='tools'){if(!$('#g_in'))renderTools()}else if(t=='letters')renderLetters();else if(t=='more')renderMore();else if(t=='boq'&&window.BOQ)BOQ.render()},
+ _st:()=>ST,X:{get ST(){return ST},save,toast,download,sheet,loadX,E,dmy,today,num,inr,lakh,uid,days,printDiv:(html)=>{$('#print').innerHTML=html;if(AND&&AND.print){document.body.classList.add('printing');setTimeout(()=>{AND.print('FacadePM_'+today());setTimeout(()=>document.body.classList.remove('printing'),1500)},300)}else window.print()},get cur(){return cur},set cur(v){cur=v}}};
 })();
