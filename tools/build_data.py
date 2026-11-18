@@ -1,3 +1,4 @@
+# ONE-TIME initial generator. Do NOT re-run for updates (it resets dates). Use tools/add_items.py.
 import json,sys
 sys.path.insert(0,'/workspace/facade-pm-app/tools')
 from content import CATS,NEW
