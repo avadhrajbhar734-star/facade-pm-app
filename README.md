@@ -8,3 +8,8 @@ Content: `docs/data.json` (edit karte hi app me update; naye items `added_on` ke
 `python3 tools/add_items.py new.json` (format file ke andar likha hai) -> `git commit -am "content update" && git push`.
 Pages 1-2 min me live; app agli baar khulte hi naya data le leta hai. Naye items yellow + NEW badge + "Naya kya hai" tab me dikhte hain jab tak user "Sab dekh liya" na dabaye.
 Category ids: daily, weekly, monthly, boq, variations, client_billing, contractor_billing, cashflow, material, glass, drawings, holdups, eot, team, safety, qaqc, handover, vendor, meetings, reports, formulas. Skill groups: must, good.
+
+## v2 features
+Home dashboard (sites, totals, Aaj ka due / Overdue), Sites tracker (follow-ups, hold-ups with days, material pending, reminders), Calculators, Letters (templates in `data.json` -> `templates`), Export/Backup (.xlsx, A4 weekly summary, JSON backup/restore).
+User data sirf device ke localStorage me (`fpm_pm`) - repo me kabhi nahi jaata. No background alarms/services.
+Templates add karne ke liye add_items.py me `"templates":[...]` (placeholders `{{Field}}`).
